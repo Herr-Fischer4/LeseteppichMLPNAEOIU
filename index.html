@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leseteppich Grundschule Bayern</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Comic Neue", "Comic Sans MS", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 960px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      font-size: 26px;
+      text-align: center;
+      margin-bottom: 6px;
+      color: #1e3a8a;
+      letter-spacing: 0.5px;
+    }
+
+    p.subtitle {
+      text-align: center;
+      font-size: 15px;
+      color: #475569;
+      margin-bottom: 18px;
+    }
+
+    .print-header {
+      display: none;
+    }
+
+    .controls-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 20px;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .row-select-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .dropdown-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    label {
+      font-weight: bold;
+      font-size: 15px;
+      color: #1e293b;
+    }
+
+    select {
+      padding: 8px 12px;
+      font-size: 15px;
+      font-weight: bold;
+      font-family: inherit;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #0f172a;
+      cursor: pointer;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .buttons-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      font-family: inherit;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+    }
+
+    button.btn-speak {
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    button.btn-speak:hover {
+      background: #1d4ed8;
+    }
+
+    button.btn-reset {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    button.btn-reset:hover {
+      background: #cbd5e1;
+    }
+
+    button.btn-print {
+      background: #059669;
+      color: #ffffff;
+    }
+
+    button.btn-print:hover {
+      background: #047857;
+    }
+
+    .filter-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .filter-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #64748b;
+      margin-right: 4px;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: bold;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      cursor: pointer;
+      color: #334155;
+    }
+
+    .chip:hover {
+      border-color: #2563eb;
+      color: #2563eb;
+    }
+
+    .chip.active {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+    }
+
+    .progress-bar-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #16a34a;
+      transition: width 0.25s ease;
+    }
+
+    .progress-counter {
+      font-size: 14px;
+      font-weight: bold;
+      color: #334155;
+      min-width: 90px;
+      text-align: right;
+    }
+
+    /* 6x6 Raster */
+    .carpet-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      width: 100%;
+    }
+
+    .word-card {
+      background: #ffffff;
+      border: 2px solid #94a3b8;
+      border-radius: 10px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.12s ease;
+      position: relative;
+      padding: 4px 6px;
+    }
+
+    .word-card:hover {
+      border-color: #2563eb;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .word-card.read {
+      background: #ecfdf5;
+      border-color: #10b981;
+    }
+
+    .word-card.dimmed {
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .word-card.active-reading {
+      outline: 4px solid #f59e0b;
+      transform: scale(1.05);
+      z-index: 10;
+      background: #fef3c7;
+    }
+
+    .card-text {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0f172a;
+      text-align: center;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+
+    .word-card.read .card-text {
+      color: #065f46;
+    }
+
+    /* Bayerische Grundschulschrift Anpassungen */
+    /* 1. Kleines 'l' mit Schwung / Bogen nach rechts unten */
+    .bs-l {
+      position: relative;
+      display: inline-block;
+      width: 0.52em;
+      height: 0.88em;
+      vertical-align: -0.04em;
+    }
+
+    .bs-l::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0.07em;
+      bottom: 0.12em;
+      width: 0.13em;
+      background-color: currentColor;
+      border-top-left-radius: 0.05em;
+      border-top-right-radius: 0.05em;
+    }
+
+    .bs-l::after {
+      content: "";
+      position: absolute;
+      left: 0.07em;
+      bottom: 0;
+      width: 0.28em;
+      height: 0.24em;
+      border-left: 0.13em solid currentColor;
+      border-bottom: 0.13em solid currentColor;
+      border-bottom-left-radius: 0.18em;
+      border-bottom-right-radius: 0.14em;
+    }
+
+    /* 2. Großes 'I' als einfacher gerader Strich ohne Queranstriche */
+    .bs-I {
+      position: relative;
+      display: inline-block;
+      width: 0.3em;
+      height: 0.88em;
+      vertical-align: -0.04em;
+    }
+
+    .bs-I::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0.14em;
+      height: 100%;
+      background-color: currentColor;
+      border-radius: 0.04em;
+    }
+
+    /* Print Stylesheet für DIN A4 */
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 100%;
+        box-shadow: none;
+        padding: 0;
+        border-radius: 0;
+      }
+
+      .controls-panel,
+      .progress-bar-container {
+        display: none !important;
+      }
+
+      .print-header {
+        display: block;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #000;
+      }
+
+      .print-title {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      .print-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 15px;
+      }
+
+      .carpet-grid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+      }
+
+      .word-card {
+        height: 60px;
+        border: 1.5px solid #000000;
+        border-radius: 4px;
+        background: #ffffff !important;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      .card-text {
+        font-size: 24px;
+        color: #000000 !important;
+      }
+
+      .word-card::after {
+        content: "";
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 10px;
+        height: 10px;
+        border: 1px solid #666;
+        border-radius: 2px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .carpet-grid {
+        gap: 6px;
+      }
+      .word-card {
+        height: 52px;
+      }
+      .card-text {
+        font-size: 20px;
+      }
+      .bs-l {
+        width: 0.52em;
+        height: 0.88em;
+      }
+      .bs-I {
+        width: 0.3em;
+        height: 0.88em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="print-header">
+      <div class="print-title" id="printTitleText">Leseteppich</div>
+      <div class="print-meta">
+        <span>Name: __________________________</span>
+        <span>Datum: ____________</span>
+      </div>
+    </div>
+
+    <h1>Leseteppich</h1>
+    <p class="subtitle">Buchstaben: A, E, O, I, U, M, L, P, N</p>
+
+    <div class="controls-panel">
+      <div class="row-select-actions">
+        <div class="dropdown-group">
+          <label for="carpetSelect">Auswahl:</label>
+          <select id="carpetSelect">
+            <option value="0">Teppich 1: Buchstaben & Silben</option>
+            <option value="1">Teppich 2: Silbenmix</option>
+            <option value="2">Teppich 3: Erste Wörter</option>
+            <option value="3">Teppich 4: Bunter Lesemix</option>
+          </select>
+        </div>
+
+        <div class="buttons-group">
+          <button class="btn-speak" id="btnSpeakAll">Alles vorlesen</button>
+          <button class="btn-reset" id="btnReset">Zurücksetzen</button>
+          <button class="btn-print" id="btnPrint">Drucken</button>
+        </div>
+      </div>
+
+      <div class="filter-wrapper">
+        <span class="filter-title">Hervorheben:</span>
+        <button class="chip active" data-filter="all">Alle</button>
+        <button class="chip" data-filter="A">A / a</button>
+        <button class="chip" data-filter="E">E / e</button>
+        <button class="chip" data-filter="I">I / i</button>
+        <button class="chip" data-filter="O">O / o</button>
+        <button class="chip" data-filter="U">U / u</button>
+        <button class="chip" data-filter="M">M / m</button>
+        <button class="chip" data-filter="L">L / l</button>
+        <button class="chip" data-filter="P">P / p</button>
+        <button class="chip" data-filter="N">N / n</button>
+      </div>
+    </div>
+
+    <div class="progress-bar-container">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-counter" id="progressText">0 von 36 gelesen</div>
+    </div>
+
+    <div class="carpet-grid" id="gridContainer"></div>
+  </div>
+
+  <script>
+    // 4 Teppiche à genau 36 Felder (6x6)
+    const carpets = [
+      {
+        title: "Teppich 1: Buchstaben & Silben",
+        items: [
+          "M", "a", "ma", "am", "L", "o",
+          "lo", "ol", "P", "i", "pi", "ip",
+          "N", "u", "nu", "un", "E", "e",
+          "me", "em", "le", "el", "pe", "ep",
+          "ne", "en", "A", "O", "I", "U",
+          "mu", "um", "la", "al", "po", "op"
+        ]
+      },
+      {
+        title: "Teppich 2: Silbenmix",
+        items: [
+          "ma", "mo", "mi", "me", "mu", "am",
+          "la", "lo", "li", "le", "lu", "al",
+          "pa", "po", "pi", "pe", "pu", "ap",
+          "na", "no", "ni", "ne", "nu", "an",
+          "om", "ol", "op", "on", "im", "il",
+          "em", "el", "en", "um", "ul", "un"
+        ]
+      },
+      {
+        title: "Teppich 3: Erste Wörter",
+        items: [
+          "Mama", "Papa", "Oma", "Opa", "Lama", "Puma",
+          "Lupe", "Momo", "Lino", "Nino", "Mina", "Paul",
+          "Mona", "Emma", "Anna", "Lena", "Emil", "Lupo",
+          "Name", "Pale", "Pine", "Mine", "Limon", "Piano",
+          "Liane", "Plane", "Mappe", "Lappe", "Pille", "Alm",
+          "Nonne", "Pampe", "Male", "Mole", "Pole", "Linon"
+        ]
+      },
+      {
+        title: "Teppich 4: Bunter Lesemix",
+        items: [
+          "M", "Mama", "ma", "L", "Lama", "la",
+          "P", "Papa", "pa", "N", "Nino", "na",
+          "Oma", "om", "Opa", "op", "Lupe", "lu",
+          "Puma", "pu", "Mina", "mi", "Lino", "li",
+          "Momo", "mo", "Paul", "pe", "Emma", "em",
+          "Anna", "an", "Name", "ne", "Alm", "al"
+        ]
+      }
+    ];
+
+    let currentCarpetIndex = 0;
+    let readStates = {};
+    let activeFilter = "all";
+    let isReadingAll = false;
+    let readingTimeout = null;
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // Bayerische Grundschul-Darstellung:
+    // Kleines 'l' mit Rechtsbogen (bs-l), Großes 'I' als glatter Strich (bs-I)
+    function formatSchoolScript(text) {
+      let html = "";
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        if (char === 'l') {
+          html += '<span class="bs-l" aria-hidden="true"></span>';
+        } else if (char === 'I') {
+          html += '<span class="bs-I" aria-hidden="true"></span>';
+        } else {
+          html += char;
+        }
+      }
+      return html;
+    }
+
+    // Synthetische Konsonanten-Lautung (kein Buchstabieren!)
+    function playPureConsonantSound(consonant) {
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        const t = ctx.currentTime;
+
+        const c = consonant.toUpperCase();
+        if (c === 'M') {
+          // Lippen-Summen (ca. 140 Hz)
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(140, t);
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.35, t + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+          osc.start(t);
+          osc.stop(t + 0.6);
+        } else if (c === 'N') {
+          // Nasallaut (ca. 210 Hz)
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(210, t);
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.35, t + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+          osc.start(t);
+          osc.stop(t + 0.6);
+        } else if (c === 'L') {
+          // Zungenton (ca. 290 Hz)
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(290, t);
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.35, t + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+          osc.start(t);
+          osc.stop(t + 0.6);
+        } else if (c === 'P') {
+          // Lippen-Plosiv (sanfter Impuls/Puff)
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(120, t);
+          osc.frequency.exponentialRampToValueAtTime(40, t + 0.12);
+          gain.gain.setValueAtTime(0.45, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+          osc.start(t);
+          osc.stop(t + 0.14);
+        }
+      } catch (e) {
+        console.warn("AudioContext Fehler:", e);
+      }
+    }
+
+    // Sprachausgabe mit kindgerechtem Phonetik-Mapping
+    function speakText(text, onComplete) {
+      const clean = text.trim();
+      const pureConsonants = ["M", "m", "L", "l", "P", "p", "N", "n"];
+
+      if (pureConsonants.includes(clean)) {
+        playPureConsonantSound(clean);
+        if (onComplete) setTimeout(onComplete, 650);
+        return;
+      }
+
+      if (!('speechSynthesis' in window)) {
+        if (onComplete) onComplete();
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+
+      // Silben-Phonetik für lange Vokale
+      const phoneticMap = {
+        "om": "Ohm", "am": "Ahm", "im": "Ihm", "em": "Ehm", "um": "Uhm",
+        "ol": "Ohl", "al": "Ahl", "il": "Ihl", "el": "Ehl", "ul": "Uhl",
+        "op": "Ohp", "ap": "Ahp", "ip": "Ihp", "ep": "Ehp", "up": "Uhp",
+        "on": "Ohn", "an": "Ahn", "in": "Ihn", "en": "Ehn", "un": "Uhn",
+        "mo": "Moh", "ma": "Mah", "mi": "Mieh", "me": "Meh", "mu": "Muh",
+        "lo": "Loh", "la": "Lah", "li": "Lieh", "le": "Leh", "lu": "Luh",
+        "po": "Poh", "pa": "Pah", "pi": "Pieh", "pe": "Peh", "pu": "Puh",
+        "no": "Noh", "na": "Nah", "ni": "Nieh", "ne": "Neh", "nu": "Nuh"
+      };
+
+      const spokenWord = phoneticMap[clean.toLowerCase()] || clean;
+      const utterance = new SpeechSynthesisUtterance(spokenWord);
+      utterance.lang = "de-DE";
+      utterance.rate = 0.78;
+
+      const voices = window.speechSynthesis.getVoices();
+      const deVoice = voices.find(v => v.lang === "de-DE" || v.lang.startsWith("de"));
+      if (deVoice) utterance.voice = deVoice;
+
+      if (onComplete) {
+        utterance.onend = onComplete;
+        utterance.onerror = onComplete;
+      }
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function renderCarpet() {
+      const grid = document.getElementById("gridContainer");
+      grid.innerHTML = "";
+
+      const currentItems = carpets[currentCarpetIndex].items;
+      document.getElementById("printTitleText").textContent = carpets[currentCarpetIndex].title;
+
+      currentItems.forEach((item, index) => {
+        const card = document.createElement("div");
+        card.className = "word-card";
+        card.id = `card-${index}`;
+
+        const isRead = !!(readStates[currentCarpetIndex] && readStates[currentCarpetIndex][index]);
+        if (isRead) {
+          card.classList.add("read");
+        }
+
+        // Filter anwenden
+        if (activeFilter !== "all") {
+          const match = item.toLowerCase().includes(activeFilter.toLowerCase());
+          if (!match) {
+            card.classList.add("dimmed");
+          }
+        }
+
+        const textSpan = document.createElement("span");
+        textSpan.className = "card-text";
+        textSpan.setAttribute("aria-label", item);
+        textSpan.innerHTML = formatSchoolScript(item);
+
+        card.appendChild(textSpan);
+
+        card.addEventListener("click", () => {
+          if (isReadingAll) stopReadingAll();
+          toggleCardRead(index);
+          speakText(item);
+        });
+
+        grid.appendChild(card);
+      });
+
+      updateProgress();
+    }
+
+    function toggleCardRead(index) {
+      if (!readStates[currentCarpetIndex]) {
+        readStates[currentCarpetIndex] = {};
+      }
+      const currentVal = !!readStates[currentCarpetIndex][index];
+      readStates[currentCarpetIndex][index] = !currentVal;
+
+      const card = document.getElementById(`card-${index}`);
+      if (card) {
+        card.classList.toggle("read", !currentVal);
+      }
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const currentItems = carpets[currentCarpetIndex].items;
+      const carpetState = readStates[currentCarpetIndex] || {};
+      let readCount = 0;
+      currentItems.forEach((_, idx) => {
+        if (carpetState[idx]) readCount++;
+      });
+
+      const total = currentItems.length;
+      const percent = total > 0 ? (readCount / total) * 100 : 0;
+
+      document.getElementById("progressFill").style.width = percent + "%";
+      document.getElementById("progressText").textContent = `${readCount} von ${total} gelesen`;
+    }
+
+    function stopReadingAll() {
+      isReadingAll = false;
+      if (readingTimeout) clearTimeout(readingTimeout);
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      document.querySelectorAll(".word-card").forEach(c => c.classList.remove("active-reading"));
+      document.getElementById("btnSpeakAll").textContent = "Alles vorlesen";
+    }
+
+    function startReadingAll() {
+      const items = carpets[currentCarpetIndex].items;
+      let currentIndex = 0;
+      isReadingAll = true;
+      document.getElementById("btnSpeakAll").textContent = "Anhalten";
+
+      function readNext() {
+        if (!isReadingAll) return;
+        if (currentIndex >= items.length) {
+          stopReadingAll();
+          return;
+        }
+
+        document.querySelectorAll(".word-card").forEach(c => c.classList.remove("active-reading"));
+        const card = document.getElementById(`card-${currentIndex}`);
+        if (card) card.classList.add("active-reading");
+
+        const text = items[currentIndex];
+
+        speakText(text, () => {
+          if (!isReadingAll) return;
+          if (!readStates[currentCarpetIndex]) readStates[currentCarpetIndex] = {};
+          readStates[currentCarpetIndex][currentIndex] = true;
+          if (card) card.classList.add("read");
+          updateProgress();
+
+          currentIndex++;
+          readingTimeout = setTimeout(readNext, 380);
+        });
+      }
+
+      readNext();
+    }
+
+    // Event Listener
+    document.getElementById("carpetSelect").addEventListener("change", (e) => {
+      stopReadingAll();
+      currentCarpetIndex = parseInt(e.target.value, 10);
+      renderCarpet();
+    });
+
+    document.getElementById("btnSpeakAll").addEventListener("click", () => {
+      if (isReadingAll) {
+        stopReadingAll();
+      } else {
+        startReadingAll();
+      }
+    });
+
+    document.getElementById("btnReset").addEventListener("click", () => {
+      stopReadingAll();
+      readStates[currentCarpetIndex] = {};
+      renderCarpet();
+    });
+
+    document.getElementById("btnPrint").addEventListener("click", () => {
+      window.print();
+    });
+
+    document.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        activeFilter = chip.getAttribute("data-filter");
+        renderCarpet();
+      });
+    });
+
+    // Stimmen vorladen
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+
+    // Initialer Aufruf
+    renderCarpet();
+  </script>
+</body>
+</html>
